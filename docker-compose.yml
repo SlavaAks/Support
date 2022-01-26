@@ -4,7 +4,8 @@ services:
     django:
         build: .
         container_name: django
-        command: bash -c "python manage.py makemigrations && python manage.py migrate  &&  python manage.py runserver 0.0.0.0:8000"
+        command: bash .sh
+
         volumes:
             - .:/usr/src/
         ports:
@@ -33,12 +34,9 @@ services:
     pgdb:
         image: postgres
         container_name: pgdb
-        environment:
-            - POSTGRES_DB=Support
-            - POSTGRES_USER=django_auth
-            - POSTGRES_PASSWORD=asdfgh
+        env_file: support/.env
         volumes:
-            - pgdata:/var/lib/postgresql/data/
+            - pgdata:/var/lib/postgresql/data2/
     redis:
         image: "redis:alpine"
 
