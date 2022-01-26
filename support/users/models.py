@@ -1,15 +1,9 @@
-from django.db import models, transaction
-
-# Create your models here.
-#from django.contrib.auth import get_user_model
-
-#from __future__ import unicode_literals
-from django.db import models
-from django.utils import timezone
-
 from django.contrib.auth.models import (
     AbstractBaseUser, PermissionsMixin, BaseUserManager
 )
+from django.db import models
+from django.db import transaction
+from django.utils import timezone
 
 
 class UserManager(BaseUserManager):

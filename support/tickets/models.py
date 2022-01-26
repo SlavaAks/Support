@@ -1,32 +1,24 @@
 from django.db import models
 
-# Create your models here.
-import json
-
-from django.db import models
-from django.contrib.auth import get_user_model
-
-# User = get_user_model()
-from django.utils import timezone
 from users.models import User
+from django.utils.translation import gettext_lazy as _
 
 
 class Ticket(models.Model):
-    STATUS_SOLVED = 'solved'
-    STATUS_UNSOLVED = 'unsolved'
-    STATUS_FROZEN = 'frozen'
-    STATUS_CHOICES = (
-        (STATUS_SOLVED, 'Тикет решен'),
-        (STATUS_UNSOLVED, 'Тикет не решен'),
-        (STATUS_FROZEN, 'Тикет заморожен'),
-    )
+
+    class StatusChoises(models.TextChoices):
+        STATUS_SOLVED = 'solved', _('Тикет решен')
+        STATUS_UNSOLVED = 'unsolved',_('Тикет не решен')
+        STATUS_FROZEN = 'frozen',_('Тикет заморожен')
+
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
     topic = models.CharField(max_length=200, db_index=True)
     description = models.TextField(blank=True)
-    status = models.CharField(max_length=100, verbose_name='Статус тикета', choices=STATUS_CHOICES,
-                              default=STATUS_UNSOLVED)
+    status = models.CharField(max_length=100, verbose_name='Статус тикета', choices=StatusChoises.choices,
+                           default=StatusChoises.STATUS_UNSOLVED)
+
 
     class Meta:
         ordering = ('created',)

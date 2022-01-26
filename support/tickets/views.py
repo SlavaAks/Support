@@ -1,24 +1,17 @@
-from rest_framework import serializers
-
-from support.settings import status_ticket
-# Create your views here.
-
-# from .utils import check_object_permissions
-# Create your views here.
-from rest_framework.views import APIView
-from rest_framework.exceptions import APIException
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from .permissions import IsAuthor
-
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from .serializers import TicketSerializer, ResponseSerializer
-from .models import *
-from .task import sleepy,send_email_task_after_response,send_mail,send_email_task_befor_response
+from tickets.models import *
+from tickets.permissions import IsAuthor
+from tickets.serializers import TicketSerializer, ResponseSerializer
+from tickets.task import send_email_task_after_response, send_email_task_befor_response
+from tickets.utils import JeneralMixin
+
 
 class APIUserTickets(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = (IsAuthenticated)
 
     def get(self, request):
         serializer = TicketSerializer(Ticket.objects.filter(user=request.user), many=True)
@@ -36,7 +29,7 @@ class APIUserTickets(APIView):
 
 
 class ViewTickets(APIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = (IsAdminUser)
 
     def get(self, request):
         tickets = Ticket.objects.all()
@@ -44,8 +37,8 @@ class ViewTickets(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class APISupportTicket(APIView):
-    permission_classes = [IsAdminUser]
+class APISupportTicket(APIView,JeneralMixin):
+    permission_classes = (IsAdminUser)
 
     def post(self, request, ticket_id):
 
@@ -58,14 +51,14 @@ class APISupportTicket(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request, ticket_id):
-        ticket = TicketSerializer.change_status(request, ticket_id)
+        ticket = self.change_status(request, ticket_id)
         serializer=TicketSerializer(ticket)
         return Response(serializer.data,status=status.HTTP_200_OK)
 
-class ViewResponse(APIView):
-    permission_classes = [IsAuthenticated, IsAuthor]
+class ViewResponse(APIView,JeneralMixin):
+    permission_classes = (IsAuthenticated, IsAuthor)
 
     def get(self, request, ticket_id):
-        resp = ResponseSerializer.obtain_response(ticket_id)
+        resp = self.obtain_response(ticket_id)
         serializer = ResponseSerializer(resp)
         return Response(serializer.data, status=status.HTTP_200_OK)
